@@ -1,0 +1,25 @@
+{
+  "name": "git-flow-specification",
+  "version": "1.0.0",
+  "repository": "git@github.com:Aisen60/git-flow-specification.git",
+  "author": "Aisen60 <caixusheng60@gmail.com> (http://www.caixusheng.com)",
+  "license": "MIT",
+  "scripts": {
+    "commit": "git-cz",
+    "release": "standard-version"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.1",
+    "@commitlint/config-conventional": "^12.1.1",
+    "commitizen": "^4.2.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-customizable": "^6.3.0",
+    "husky": "^6.0.0",
+    "standard-version": "^9.1.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-customizable"
+    }
+  }
+}
