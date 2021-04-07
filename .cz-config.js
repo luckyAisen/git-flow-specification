@@ -70,7 +70,7 @@ module.exports = {
    */
   // 覆写提示的信息
   messages: {
-    type: '请确保你的提交遵循了原子提交规范！\n选择你要提交的类型:',
+    type: '请确保你的提交遵循规范！\n选择你要提交的类型:',
     scope: '\n选择一个 scope (可选):',
     // 选择 scope: custom 时会出下面的提示
     customScope: '请输入自定义的 scope:',

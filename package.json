@@ -5,7 +5,6 @@
   "author": "Aisen60 <caixusheng60@gmail.com> (http://www.caixusheng.com)",
   "license": "MIT",
   "scripts": {
-    "commit": "git-cz",
     "release": "standard-version"
   },
   "devDependencies": {
@@ -14,7 +13,7 @@
     "commitizen": "^4.2.3",
     "cz-conventional-changelog": "^3.3.0",
     "cz-customizable": "^6.3.0",
-    "husky": "^6.0.0",
+    "husky": "4.3.8",
     "standard-version": "^9.1.1"
   },
   "config": {
