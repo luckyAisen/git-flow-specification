@@ -123,7 +123,90 @@ git push origin 1.0.0
 
 不知道大家对 git commit message 有没有要规范，之前也有了解过相关的规范，后来因为太懒，不想写这么多 message，所以就没按照规范来。后来我记得有一次，要回去找一个比较复杂方法（这个方法由于种种原因被删除了），而当时提交的时间距离当下来说很远了，差不多有一个月了，因为没有很清晰明确的 commit message，找了很久，后来才找到了这个方法。而且还有一些团队成员不写 commit，会导致回溯问题的时间成本越来越高。
 
-未完待续~
+而规范 对 git commit message 是为了以下几个目的：
+
+- 自动生成 CHANGELOG.md
+- 识别不重要的提交
+- 为浏览提交历史时提供更好的信息
+
+在了解相关的规范之前，我们先来说说 [AngularJS](https://github.com/angular/angular.js)， 它的提交记录很规范很工整，也是被业界同行称赞最多的。AngularJS 用的是 [Angular convention](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines) 这一套规范。而我们下面要讲的是 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0-beta.4/) 这一套规范，这套规范是在 Angular convention 的基础上进行改造和扩展。
+
+### 规范简介
+
+我们先来看看git commit message 的格式
+
+**Conventional message 格式**是这样的
+
+```xml
+<type>(<scope>): <subject>
+// 空一行
+<body>
+// 空一行
+<footer>
+```
+
+这个格式整体包含了三部分，分别是：header、body、footer
+
+#### header
+
+header 的部分只有一行，包含了三个字段分别是：`type`（必填）、`scope`（选填）和 `subject`（必填）
+
+##### （1）type
+
+type：提交类型，冒号后面要有空格。简单的说有feat，fix，docs等等。**注意，既然是规范，type类型是固定，一定要是规则里面有的。不要自己创造什么task，update，delete**。
+
+一共有下面这11种：
+
+- feat:     		新增产品功能
+- fix:               修复 bug
+- docs:           文档的变更
+- style:           不改变代码功能的变动(如删除空格、格式化、去掉末尾分号等)
+- refactor:     重构代码。不包括 bug 修复、功能新增
+- perf:            性能优化
+- test:             添加、修改测试用例
+- build:           构建流程、外部依赖变更，比如升级 npm 包、修改 webpack 配置
+- ci:                 修改了 CI 配置、脚本
+- chore:          对构建过程或辅助工具和库的更改,不影响源文件、测试用例的其他操作'
+- revert:          回滚 commit
+
+具体可查看 [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional)。
+
+##### （2）scope 
+
+scope 用于说明 commit 影响的范围，比如全局组件，全局的函数，视项目不同而不同。
+
+##### （3）subject
+
+subjec t是 commit 目的的简短描述，不超过50个字符。
+
+#### body
+
+body 部分是对本次 commit 的详细描述，可以分成多行。
+
+#### footer
+
+一般在进行重大修改，影响了别的模块的时候，一定要写。注意，该选项和上面要有空行
+
+#### 举个例子
+
+```shell
+docs(README.md): 完善 README.md
+
+添加了:
+关于 git flow 工作流程
+git commit message 规范(未完成)
+参考资料
+```
+
+
+
+### 工具
+
+
+
+### 缺点
+
+
 
 ## 参考资料
 
