@@ -1,133 +1,25 @@
 # 关于 git flow 工作流程 和 git commit message 规范
-## git flow 工作流程
+## git flow 工作流
 
-### 前言
-
-虽然平时我在工作和学习当中，一直都是使用 `git flow` 规范，但是始终没有形成文档，最近在参与制订公司前端部门的一些开发规范，就把这次的工作和总结形成文档，方便日后复盘。
-
-业界用的比较多的流程主要是：git flow、github flow、和 gitlab flow 这三种，可能有一些公司内部会有自己的 workflow 流程，比如：阿里的**[Aone Flow](https://developer.aliyun.com/article/573549)**、字节跳动的[多种工作流](https://juejin.cn/post/6875874533228838925#heading-5)。
-
-这篇文章，主要是介绍 git flow 工作流，虽然它有一定的缺点，但是也足够满足大部分的中小厂的开发。
-
-关于 github flow 和 gitlab flow 的介绍，请查看参考资料中的第一点和第二点。
-
-先看看一张比较经典的图，下面是 git flow 工作流程图
-
-![git flow](https://img-blog.csdnimg.cn/20210406150232152.png)
-
-
-
-### 分支功能
-
-**master**
-
-master 主分支的代码主要是生产环境运行的代码，这分支的代码不能再任何时间任何人修改，要保持 master 分支的稳定性
-
-**develop**
-
-develop 分支的代码始终是项目最新的代码分支，包含了完成新功能的开发和 bug 的修改
-
-**feature**
-
-feature 分支的代码主要是新功能的开发，feature分支都以 develop 分支为基础创建的，分支的命名一般以feature/开头，例如：feature/module、feature/content。
-
-**release**
-
-release 分支的代码主要是预发布环境的代码，提交测试阶段，会以 release 分支代码为基准提测。该分支是由 develop 分支为基准进行创建，分支的命名一般以release/版本号，例如：release/1.0.0、release/1.1.0、release/1.1.1。关于版本号如何定义，请查看[版本号定义](### 开发步骤)
-
-**hotfix**
-
-这个分支的代码主要是解决线上的紧急 bug 的，以 master 分支为基础创建的，命名的规则可以和 feature 一样。当解决完 bug 后，需要合拼到 master 分支和 develop 分支。
-
-### 使用场景设想（开发步骤）
-
-1、老大安排了新的需求，需要做一个用户系统，要求一周内完成并且需要部署上线。你看看当前有没有新需求的分支（多人协作，有可能你的同事已经创建了），如果没有那就创建一个feature分支，命名为"feature/user_module"。如果有当前分支了，那不用创建直接拉取当前这个代码的分支。
-
-```shell
-git checkout -b feature/user_module develop
-```
-
-2、三天过去了，你做完了这个新的需求，自己也自测通过了，需要提交测试了。首先，先把 feature/user_module 合拼到 develop 分支。合拼完后，删除此 feature/user_module ，在以 develop 分支为基础创建 release 分支，命名为 release/1.0.0 ，最后提交测试。
-
-```shell
-# 检出 develop 分支
-git checkout develop
-# 使用 develop 分支合并功能分支
-git merge feature/user_module
-# 删除 feature/user_module 功能分支
-git branch -d feature/user_module
-# 推送远程仓库
-git push origin develop
-# 创建 release/1.0.0 分支
-git checkout -b release/1.0.0 develop
-# 推送 release/1.0.0 分支到远程仓库
-git push origin release/1.0.0
-```
-
-3、测试人员提出了好几个bug，然后在 release/1.0.0 分支上修改，修改完后在此提测。如果还有bug那么也在这个分支上修改提测。一直到没有bug了。
-
-4、一周来到了最后一天晚上了，老大说准备部署生产环境了。这个时候就可以把 release/10.0. 分支合拼到 develop 和 master 分支上了。部署之前，打一个 tag 标签，以便对当前版本的代码存档。
-
-```shell
-# 切换到 develop 分支
-git checkout develop
-# 与远程同步
-git pull
-# develop 分支合并 release 分支
-git merge release/1.0.0
-git push origin develop
-
-# 切换到 master 分支
-git checkout master
-# 与远程同步
-git pull
-# master 分支合并 release 分支
-git merge release/1.0.0
-git push origin master
-
-# 在 master 分支上打 tag
-git tag -a 1.0.0
-# 推送 tag 到远程
-git push origin 1.0.0
-```
-
-5、做完了这个需求，下面或许还有很多需求，那么可以继续按照上面的流程来。
-
-6、第二天或者第n天后，客户反馈有个 bug 或者有个按钮或者数据出不来，你定位到了问题后，也与团队内的同事或者老大确认过后，需要紧急处理。这个时候以 mastr 为基础创建 hotfix 分支，命名为 hotfix/user_module 分支。修改完这个 bug 后，以 hotfix/user_module 分支为基准，创建 release/1.0.1 分支，创建完后删除 release/1.0.1 分支。并且提交进行测试，如果还是有问题，那么继续在 release/1.0.1  分支上修改，直到没问题后，按照上面的发包流程，进行发包。
-
-### 版本号定义
-
-项目代码release包括三类：
-
-- 大版本(x.0.0)
-- 小版本(x.x.0)
-- 补丁(x.x.x)
-
-### git flow 的优缺点
-
-**优点：**
-
-- 各分支各司其职，基本上可以覆盖大部分的场景。
-- 严格按照流程执行，出现重大事故的情况会大大降低。
-
-**缺点：**
-
-- 过于繁琐，按照这个流程严格执行对团队成员来说按照有难度。
-- git flow违反了“短命”分支规则
-- git flow也无法在 monorepo中 使用。
-- 关于更多的说明，请查看参考资料第四点。
-
-
+关于 git flow 工作流，可以查看我之前写的另外一篇文章：[git flow 工作流程](https://github.com/Aisen60/blog/issues/5)
 
 ##  git commit message 规范
 
-不知道大家对 git commit message 有没有要规范，之前也有了解过相关的规范，后来因为太懒，不想写这么多 message，所以就没按照规范来。后来我记得有一次，要回去找一个比较复杂方法（这个方法由于种种原因被删除了），而当时提交的时间距离当下来说很远了，差不多有一个月了，因为没有很清晰明确的 commit message，找了很久，后来才找到了这个方法。而且还有一些团队成员不写 commit，会导致回溯问题的时间成本越来越高。
+不知道大家有没有看过自己提交过的 commit message 信息，我看过我自己的，简直是不忍直视。如下图：
 
-而规范 对 git commit message 是为了以下几个目的：
+![不忍直视的 git commit message](https://img-blog.csdnimg.cn/20210410143657429.png)
 
-- 自动生成 CHANGELOG.md
-- 识别不重要的提交
+上图是之前做过的一个项目中的 git commit message。让我下定决心去规范化 git commit message 的是：有一次，要去找一个比较复杂方法（这个方法由于种种原因被删除了），而当时提交的时间距离当下来说很远了（差不多有一个月了），因为没有很清晰明确的 commit message，找了很久，后来才找到了这个方法。
+
+有类似于这种情况的发生已经有好几次了，导致我出现这种情况的时候，我总是需要花时间去做这样的工作。于是，我就想了想，能不能借助工具去帮我们自动生成有相关格式的 commit message，规范化 commit message，或者能够体现出 commit 所做的事情就可以了。
+
+查看了相关的资料后，可以使用 [commitizen/cz-cli](https://github.com/commitizen/cz-clii) + [commitizen/cz-conventional-changelog](https://github.com/commitizen/cz-conventional-changelog) + [conventional-changelog/standard-version](https://github.com/conventional-changelog/standard-version) 这几个工具去解决提交信息的格式，和自动生成版本发布日志（changlog）
+
+而对 commit message 规范，是为了以下几个目的：
+
 - 为浏览提交历史时提供更好的信息
+- 识别不重要的提交
+- 自动生成 CHANGELOG.md
 
 在了解相关的规范之前，我们先来说说 [AngularJS](https://github.com/angular/angular.js)， 它的提交记录很规范很工整，也是被业界同行称赞最多的。AngularJS 用的是 [Angular convention](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines) 这一套规范。而我们下面要讲的是 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0-beta.4/) 这一套规范，这套规范是在 Angular convention 的基础上进行改造和扩展。
 
@@ -177,7 +69,7 @@ scope 用于说明 commit 影响的范围，比如全局组件，全局的函数
 
 ##### （3）subject
 
-subjec t是 commit 目的的简短描述，不超过50个字符。
+subject是 commit 目的的简短描述，不超过50个字符。
 
 #### body
 
@@ -200,27 +92,127 @@ git commit message 规范(未完成)
 
 
 
-### 工具
+### 安装
 
+在安装之前，我们在本地初始化一个仓库和 package.json
 
+```shell
+mkdir git-test
+cd git-test
+git init
+yarn init --yes # 或者 npm init --yes
+```
 
-### 缺点
+在项目根目录下，执行以下命令进行安装：
+
+```shell
+# npm
+npm install -D commitizen cz-conventional-changelog
+# yarn
+yarn add commitizen cz-conventional-changelog -D
+```
+
+安装完成后，在 package.json 中进行配置：
+
+```json
+"scripts": {
+  "commit": "git-cz"
+},
+"config": {
+  "commitizen": {
+    "path": "node_modules/cz-conventional-changelog"
+  }
+}
+```
+
+配置完成之后，我们执行 commit 命令，发现报错了：
+
+```shell
+npm run commit
+```
+
+![报错](https://img-blog.csdnimg.cn/20210409172133891.png)
+
+上图提示我们，**没有文件添加到暂存区**，我们先添加一些文件到暂存区，
+
+```shell
+git add package.json
+```
+
+添加完后，我们再次执行 commit 命令，你会看到如下：
+
+第一步，它会提示我们这次变更的类型，可以进行上下选择：
+
+![提交类型](https://img-blog.csdnimg.cn/20210409172658157.png)
+
+第二步，它会要求我们输入此次变更的影响范围：
+
+![变更的影响范围](https://img-blog.csdnimg.cn/20210410151520553.png)
+
+第三步，它会要求我们输入此次变更的一个简要说明：
+
+![此次变更的一个简要说明](https://img-blog.csdnimg.cn/20210410151744626.png)
+
+第四步，它会要求我们输入一个更加详细的说明（可选填，我这里不填）：
+
+![更加详细的说明](https://img-blog.csdnimg.cn/20210410151818877.png)
+
+第五步，它会询问我们，是否有突破性的变化：
+
+![是否有突破性的变化](https://img-blog.csdnimg.cn/20210410152004624.png)
+
+第六步，它会询问我们，是否需要关闭 issues：
+
+![是否需要关闭 issues](https://img-blog.csdnimg.cn/2021041015205791.png)
+
+我们填完了所有的信息之后，会出下面的提示，证明已经提交成功了：
+
+![完成提示](https://img-blog.csdnimg.cn/20210410152212776.png)
+
+最后，我们看一下这个工具生成的 commit 长什么样子，在项目终端输入：
+
+```shell
+git log
+```
+
+![commit 最终的样子](https://img-blog.csdnimg.cn/20210410152611680.png)
+
+它会帮我们生成作者信息、提交日期、以及总的提交说明。
+
+再来看一个信息比较多的 commit：
+
+![信息较多的commit](https://img-blog.csdnimg.cn/20210410152928980.png)
+
+### 自定义适配器
+
+上面这一条就是 AngluarJs 的 git commit message 的规范。但是，这一套规范可能不适用于团队或者用的不舒服，比如，自动生成的作息信息和提交日期，这些可以在相关的 git 平台中查看，完全没必要哈。
+
+我们可以借助一个叫做 [cz-customizable](https://github.com/leonardoanalista/cz-customizable) 的工具，制订一套符合自己团队的规范。
+
+在项目终端输入以下命令进行安装：
+
+```shell
+# npm
+npm i cz-customizable -D
+# yarn
+yarn add cz-customizable -D
+```
+
+安装成功后，需要在 package.json 中修改 config 中的 commitizen 信息：
+
+```json
+"config": {
+  "commitizen": {
+    "path": "node_modules/cz-customizable"
+  }
+}
+```
+
+同时，需要在项目根目录下新建一个 `.cz-config.js` 的文件，在这个文件中编写格式
 
 
 
 ## 参考资料
 
-[Understanding the GitHub flow](https://guides.github.com/introduction/flow/index.html)
-
-[Introduction to GitLab Flow](https://docs.gitlab.com/ee/topics/gitlab_flow.html)
-
-[一文弄懂 Gitflow、Github flow、Gitlab flow 的工作流](https://cloud.tencent.com/developer/article/1646937)
-
-[Please stop recommending Git Flow!](https://georgestocker.com/2020/03/04/please-stop-recommending-git-flow/)
-
-[在阿里，我们如何管理代码分支？](https://developer.aliyun.com/article/573549)
-
-[字节研发设施下的 Git 工作流](https://juejin.cn/post/6875874533228838925#heading-5)
-
-
+[优雅的提交你的 Git Commit Messag](https://juejin.cn/post/6844903606815064077)
 
