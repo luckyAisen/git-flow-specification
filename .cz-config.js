@@ -1,9 +1,14 @@
 module.exports = {
-  // type 类型
+
+  // types: 描述修改的性质是什么，是bugfix还是feat，在这里进行定义
   types: [
     { value: 'feat', name: 'feat:     新增产品功能' },
     { value: 'fix', name: 'fix:      修复 bug' },
-    { value: 'docs', name: 'docs:     文档的变更' },
+    { value: 'test', name: 'test:     添加、修改测试用例' },
+    {
+      value: 'perf',
+      name: 'perf:     性能优化'
+    },
     {
       value: 'style',
       name: 'style:    不改变代码功能的变动(如删除空格、格式化、去掉末尾分号等)'
@@ -12,11 +17,7 @@ module.exports = {
       value: 'refactor',
       name: 'refactor: 重构代码。不包括 bug 修复、功能新增'
     },
-    {
-      value: 'perf',
-      name: 'perf:     性能优化'
-    },
-    { value: 'test', name: 'test:     添加、修改测试用例' },
+    { value: 'docs', name: 'docs:     文档的变更' },
     {
       value: 'build',
       name:
@@ -31,17 +32,15 @@ module.exports = {
     { value: 'revert', name: 'revert:   回滚 commit' }
   ],
 
-  // scope 类型，针对 React 项目
+  // scope 设置 影响范围 选项
   scopes: [
+    ['views', '视图相关'],
     ['components', '组件相关'],
-    ['hooks', 'hook 相关'],
-    ['hoc', 'HOC'],
-    ['utils', 'utils 相关'],
-    ['antd', '对 antd 主题的调整'],
-    ['element-ui', '对 element-ui 主题的调整'],
     ['styles', '样式相关'],
+    ['element-ui', '对 element-ui 主题的调整'],
+    ['utils', 'utils 相关'],
+    ['api', 'serveice 接口服务相关'],
     ['deps', '项目依赖'],
-    ['auth', '对 auth 修改'],
     ['other', '其他修改'],
     // 如果选择 custom ,后面会让你再输入一个自定义的 scope , 也可以不设置此项， 把后面的 allowCustomScopes 设置为 true
     ['custom', '以上都不是？我要自定义']
@@ -52,23 +51,23 @@ module.exports = {
     }
   }),
 
-  // allowTicketNumber: false,
-  // isTicketNumberRequired: false,
-  // ticketNumberPrefix: 'TICKET-',
-  // ticketNumberRegExp: '\\d{1,5}',
-
-  // 可以设置 scope 的类型跟 type 的类型匹配项，例如: 'fix'
+  // 可以设置 scope 的类型跟 type 的类型匹配项
   /*
     scopeOverrides: {
+      feat: [
+        { name: 'views' },
+        { name: 'components' },
+        ...
+      ],
       fix: [
-        { name: 'merge' },
-        { name: 'style' },
         { name: 'e2eTest' },
-        { name: 'unitTest' }
+        { name: 'unitTest' },
+        ...
       ]
     },
    */
-  // 覆写提示的信息
+
+  // messages 覆写提示的信息
   messages: {
     type: '请确保你的提交遵循规范！\n选择你要提交的类型:',
     scope: '\n选择一个 scope (可选):',
@@ -84,13 +83,13 @@ module.exports = {
 
   // 是否允许自定义填写 scope ，设置为 true ，会自动添加两个 scope 类型 [{ name: 'empty', value: false },{ name: 'custom', value: 'custom' }]
   // allowCustomScopes: true,
-  allowBreakingChanges: ['feat', 'fix'],
-  // skip any questions you want
-  // skipQuestions: [],
+
+  // 只有 type 为 refactor 时，才需要填写 “列举非兼容性重大的变更”
+  allowBreakingChanges: ['refactor'],
+
+  // 指定跳过哪些步骤
+  skipQuestions: ['footer'],
 
   // subject 限制长度
   subjectLimit: 100
-  // breaklineChar: '|', // 支持 body 和 footer
-  // footerPrefix : 'ISSUES CLOSED:'
-  // askForBreakingChangeFirst : true,
 }
