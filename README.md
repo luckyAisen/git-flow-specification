@@ -208,11 +208,179 @@ yarn add cz-customizable -D
 }
 ```
 
-同时，需要在项目根目录下新建一个 `.cz-config.js` 的文件，在这个文件中编写格式
+**同时，需要在项目根目录下新建一个 `.cz-config.js` 的文件，在这个文件中编写格式规范。**
+
+这里可以参考我的配置文件：**[Aisen60/.cz-config.js](https://gist.github.com/Aisen60/9aad3244ada313a74d0941c08eece595)**，我主要配置了以下信息：
+
+- 汉化
+- 自定义 type 
+- 自定义了 scope(影响范围)
+- 覆盖了 messages 提示信息
+- 设置了 allowBreakingChanges，只有 type 为 refactor 时，才需要填写 “列举非兼容性重大的变更”
+- 指定跳过 footer 步骤
+
+效果图如下：
+
+![效果图](https://img-blog.csdnimg.cn/20210410175622833.png)
+
+如果你想自定义自己团队的规则，可以具体查看 [cz-customizable](https://github.com/leoforfree/cz-customizable#options) 的相关文档
+
+### 校验 commit message
+
+现在规范有了，要如何把规范落地呢，就是说，如果团队成员不遵循规范，如何防止？
+
+思路是：我们可以结合 git hook 在 git commit  时检查是否符合规范。
+
+我们可以使用 [husky](https://github.com/typicode/husky) 工具来更加方便的使用 git hook，使用 [@commitlint/cli](https://github.com/conventional-changelog/commitlint) 和 [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint) 这两个工具来检查 commit message 是否符合规范。
+
+首先，我们先来安装 @commitlint/config-conventional @commitlint/cli 
+
+```shell
+# npm 
+npm i @commitlint/config-conventional @commitlint/cli -D
+# yarn
+yarn add @commitlint/config-conventional @commitlint/cli -D
+```
+
+安装完成之后，在根目录下，新建一个 `commitlint.config.js` 文件，写入：
+
+```js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {}
+}
+```
+
+接下来，我们来安装 husky
+
+```shell
+# npm
+npm i husky@next -D
+# yarn
+yarn add husky@next -D
+```
+
+在安装的过程中，终端会罗列出这个husky的版本列表，我们选择最新的版本。版本号为：6.0.0
+
+安装完成后，执行 husky 初始化，命令如下：
+
+```shell
+# npx
+npx husky install
+# yarn
+yarn husky install
+```
+
+初始化完成后，会在项目根目录下，出现一个 `.husky` 文件夹
+
+接着，执行以下命令，添加一个 hook：
+
+```shell
+# npx
+npx husky add .husky/commit-msg "npx commitlint -e \$GIT_PARAMS"
+# yarn
+yarn husky add .husky/commit-msg "npx commitlint -e \$GIT_PARAMS"
+```
+
+你会看到 .husky 文件夹会多出一个 commit-msg 脚本，脚本会在 git 提交时，检查我们所填写的信息是否符合规范。
+
+我们随便填写一个信息，效果如下：
+
+![校验失败](https://img-blog.csdnimg.cn/20210410185752395.png)
+
+
+
+### 自定义校验 commit message
+
+如果你自定义了校验规则，可以使用 commitlint-config-cz @commitlint/cli 这两个工具了，
+
+```shell
+# npm
+npm i commitlint-config-cz @commitlint/cli -D 
+# yarn
+yarn add commitlint-config-cz @commitlint/cli -D 
+```
+
+新建`commitlint.config.js` ，并且写入：
+
+```js
+module.exports = {
+  extends: [
+    'cz'
+  ],
+  // 规则在 rules 中填写
+  rules: {
+  }
+};
+```
+
+规则的配置，请查看[官方文档](https://commitlint.js.org/#/reference-rules)
+
+备注：虽然上面我自定了规则，但是大致的和官方的一直，该有的 type、scope 都有，所以我在这里可以直接使用官方的检验。
+
+
+
+### npm run commit 替换成 git commit 并且 触发 git cz
+
+既然，我们安装了 husky，我们就不在需要输入 `npm run commit` 来提交了，我们只需要在提交一个git hook 钩子，让开发者无感的触发 git cz 。配置如下：
+
+配置可查看[官网](https://github.com/commitizen/cz-cli#husky)
+
+```shell
+# npx
+npx husky add .husky/prepare-commit-msg "exec < /dev/tty && npx git-cz --hook || true"
+# yarn
+yarn husky add .husky/prepare-commit-msg "exec < /dev/tty && yarn git-cz --hook || true"
+```
+
+效果如下：
+
+![git commit 代替 git cz](https://img-blog.csdnimg.cn/2021041019430057.png)
+
+
+
+## 关于 `SourceTree` 工具的配置 和 推送失败问题
+
+如果你不想用命令行想用 SourceTree 这些图形化工具也是可以的，只要 commit message 的格式符合 **Conventional message 格式**就可以了。格式规范请查看规范简介
+
+### 推送失败问题
+
+可能是代码或者 commit message 不符合规范引起的，或者使用了图形化工具没有配置引起的。
+
+如果是代码或者 commit message不符合规范，按照提示和规范修改即可。
+
+### SourceTree 不走 husky git hook 钩子解决方案：
+
+因为  SourceTree  会跳过  Husky git hook 钩子校验，如果你正在使用 SourceTree 图形化工具，找到相关的 git hook 文件，在**头部**添加以下代码：
+
+Mac：
+
+```
+PATH="/usr/local/bin:$PATH"
+```
+
+Windows：
+经测试没发现因为环境所引起的问题
+
+
+
+## 总结
+
+规范化了 commit message 的目的是为了团队更好的维护和问题回溯，但是也有一些约束，团队成员需要一定的时间去适应。我觉得前期的成本是可投入的，前期成本的投入远远小于后期成本的投入。
 
 
 
 ## 参考资料
 
 [优雅的提交你的 Git Commit Messag](https://juejin.cn/post/6844903606815064077)
+
+[commitlint 落地推广](https://www.yuque.com/iyum9i/uur0qi/gg4kt7)
+
+[前端规范化: 使用commitlint:校验你的 git message](https://juejin.cn/post/6856587708995747854#comment)
+
+[自定义规则校验配置](https://commitlint.js.org/#/reference-rules)
+
+[解决Mac下SourceTree pre-commit 被跳过的问题](https://www.jianshu.com/p/7b7b20b35fde)
+
+[Git pre-commit hook failing in GitHub for mac (works on command line)](https://stackoverflow.com/questions/12881975/git-pre-commit-hook-failing-in-github-for-mac-works-on-command-line)
 
